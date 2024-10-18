@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Steam Games OLAP Application</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+<body>
+    <h1>Steam Games OLAP Application</h1>
+
+    <!-- Overview Section -->
+    <table>
+        <thead>
+            <tr>
+                <th>Total Games</th>
+                <th>Total owners</th>
+                <th>Average Price</th>
+                <th>Total Recommendations</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ overview.TotalGames }}</td>
+                <td>{{ overview.TotalOwners }}</td>
+                <td>${{ '%.2f' | format(overview.AveragePrice) }}</td>
+                <td>{{ overview.TotalRecommendations }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Query Form for Top Developers/Publishers -->
+    <h2>
+        Top 
+        <form method="POST" action="{{ url_for('views.home') }}" style="display: inline;">
+            <select name="number" id="number">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+            </select>
+            developers or publishers with the most positive reviews:
+            <select name="type" id="type">
+                <option value="developers">Developers</option>
+                <option value="publishers">Publishers</option>
+            </select>
+            <button type="submit">Submit</button>
+        </form>
+    </h2>
+    
+    {% if top_developers is not none and request.method == 'POST' %}
+        <h3>Top Developers/Publishers</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Positive Reviews</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in top_developers.iterrows() %}
+                    <tr>
+                        <td>{{ row[1]['Name'] }}</td>
+                        <td>{{ row[1]['Positive'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif request.method == 'POST' %}
+        <p>No data available for the selected criteria.</p>
+    {% endif %}       
+    </div>
+</body>
+</html>
