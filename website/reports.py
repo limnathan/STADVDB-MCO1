@@ -62,3 +62,29 @@ def get_slice(property, filter):
         
     result = db.session.execute(query)
     return result.fetchall()
+
+def get_game_stats():
+    query = text(f"""
+        SELECT DISTINCT
+            g.Name AS Game_Name,
+            AVG(fact.User_score) AS Avg_User_Score,
+            SUM(fact.Estimated_Owners) AS Total_Estimated_Owners,
+            SUM(fact.positive) AS Total_positive_reviews,
+            SUM(fact.negative) AS Total_negative_reviews,
+            SUM(fact.recommendations) AS Total_reccomendations,
+            SUM(CASE WHEN platform.Windows = 1 THEN fact.Estimated_Owners ELSE 0 END) AS Windows_Estimated_Owners,
+            SUM(CASE WHEN platform.Mac = 1 THEN fact.Estimated_Owners ELSE 0 END) AS Mac_Estimated_Owners,
+            SUM(CASE WHEN platform.Linux = 1 THEN fact.Estimated_Owners ELSE 0 END) AS Linux_Estimated_Owners
+
+        FROM 
+            Fact_steamGames fact
+        JOIN 
+            Dim_Games g ON fact.AppID = g.AppID
+        JOIN 
+            Dim_GamePlatform platform ON g.AppID = platform.AppID
+        GROUP BY 
+            g.Name;
+    """)
+
+    result = db.session.execute(query)
+    return result.fetchall()

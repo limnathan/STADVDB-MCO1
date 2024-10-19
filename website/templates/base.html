@@ -102,6 +102,13 @@
         </tbody>
     </table>
 
+    <!-- Execution Time Section -->
+    {% if execution_time is not none %}
+        <div class="execution-time text-center">
+            <strong>Time taken for query:</strong> {{ '%.2f' | format(execution_time) }} seconds
+        </div>
+    {% endif %}
+
     <!-- Query Form for drill down -->
     <h1>Drill Down</h1>
     <h2>
@@ -258,6 +265,53 @@
     {% elif request.method == 'POST' %}
     <p>No data available for the selected criteria.</p>
     {% endif %}
+
+    <!-- Query Form for game statistics -->
+    <h1>Pivot</h1>
+    <h2>
+        Generate quantitative statistics per game
+        <form method="POST" action="{{ url_for('views.home') }}" style="display: inline;">
+            <input type="hidden" name="action" value="pivot">  
+            <button type="submit">Submit</button>
+        </form>
+    </h2>
+
+    {% if game_stats is not none and request.method == 'POST' %}
+        <h3>Statistics</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Average User Score</th>
+                    <th>Total Estimated Owners</th>
+                    <th>Total Positive Reviews</th>
+                    <th>Total Negative Reviews</th>
+                    <th>Total Recommendations</th>
+                    <th>Windows Owners</th>
+                    <th>Mac Owners</th>
+                    <th>Linux Owners</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in game_stats %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                        <td>{{ row[4] }}</td>
+                        <td>{{ row[5] }}</td>
+                        <td>{{ row[6] }}</td>
+                        <td>{{ row[7] }}</td>
+                        <td>{{ row[8] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif request.method == 'POST' %}
+        <p>No pivot data available for the selected criteria.</p>
+    {% endif %}
+
     <!-- JavaScript -->
     <script>
         function updateDrillDownOptions() {
