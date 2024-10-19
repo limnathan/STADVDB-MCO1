@@ -46,3 +46,19 @@ def get_total(group_by_column1, aggregation_column1, dim_table1):
     
     result = db.session.execute(query)
     return result.fetchall()
+
+def get_slice(property, filter):
+    query = text(f"""
+        SELECT DISTINCT
+            g.Name,
+            dim.{property}
+        FROM 
+            Dim_Games g
+        JOIN 
+            Dim_GameAttributes dim ON g.AppID = dim.AppID
+        WHERE 
+            dim.{property} LIKE '%{filter}%'
+    """)
+        
+    result = db.session.execute(query)
+    return result.fetchall()
