@@ -1,5 +1,7 @@
 mysql-connector-python
 matplotlib
-seaborn
 pandas
-tk
+pymysql
+flask
+flask_sqlalchemy
+sqlalchemy
