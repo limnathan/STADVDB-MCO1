@@ -7,6 +7,16 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     </head>
 <body>
+    <!-- Variables and Constants -->
+    <script>
+        const groupByOptions = {
+            'Dim_GameAttributes': ['Category', 'Tags', 'Genres'],
+            'Dim_GamePlatform': ['Mac', 'Windows', 'Linux'],
+            'Dim_Organization': ['Developers', 'Publishers'],
+            'Dim_Games' : ['Name', 'Release date']
+        };
+    </script>
+
     <h1>Steam Games OLAP Application</h1>
 
     <!-- Overview Section -->
@@ -30,27 +40,43 @@
     </table>
 
     <!-- Query Form for Top Developers/Publishers -->
+    <h1>Drill Down</h1>
     <h2>
-        Top 
+        In the
         <form method="POST" action="{{ url_for('views.home') }}" style="display: inline;">
-            <select name="number" id="number">
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="40">40</option>
-                <option value="50">50</option>
+            <select name="table_selection" id="table_selection" onchange="updateDrillDownOptions()">
+                <option value="Dim_GameAttributes">Game Attributes</option>
+                <option value="Dim_GamePlatform">Game Platform</option>
+                <option value="Dim_Organization">Game Organization</option>
+                <option value="Dim_Games">Games</option>
             </select>
-            developers or publishers with the most positive reviews:
-            <select name="type" id="type">
-                <option value="developers">Developers</option>
-                <option value="publishers">Publishers</option>
+            table get the 
+            <select name="group_by_col" id="group_by_col">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            with the most
+            <select name="aggregation_col_drill" id="aggregation_col_drill">
+                <option value="Estimated_Owners">Estimated Owners</option>
+                <option value="Peak_CCU">Peak CCU</option>
+                <option value="Average_Playtime_Forever">Average Playtime Forever</option>
+                <option value="Average_Playtime_Two_Weeks">Average Playtime Two Weeks</option>
+                <option value="Median_Playtime_Forever">Median Playtime Forever</option>
+                <option value="Median_Playtime_Two_Weeks">Median Playtime Two Weeks</option>
+                <option value="Total_Revenue">Total Revenue</option>
+                <option value="User_Score">User Score</option>
+                <option value="Metacritic_Score">Metacritic Score</option>
+                <option value="Positive_Reviews">Positive Reviews</option>
+                <option value="Negative_Reviews">Negative Reviews</option>
+                <option value="DLC_Count">DLC Count</option>
+                <option value="Achievements">Achievements</option>
+                <option value="Recommendations">Recommendations</option>
             </select>
             <button type="submit">Submit</button>
         </form>
     </h2>
     
-    {% if top_developers is not none and request.method == 'POST' %}
-        <h3>Top Developers/Publishers</h3>
+    {% if top_results is not none and request.method == 'POST' %}
+        <h3>Aggregated Results</h3>
         <table>
             <thead>
                 <tr>
@@ -59,31 +85,30 @@
                 </tr>
             </thead>
             <tbody>
-                {% for row in top_developers.iterrows() %}
+                {% for row in top_results %}
                     <tr>
-                        <td>{{ row[1]['Name'] }}</td>
-                        <td>{{ row[1]['Positive'] }}</td>
+                        <td>{{ row[0] }}</td>  
+                        <td>{{ row[1] }}</td>  
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% elif request.method == 'POST' %}
         <p>No data available for the selected criteria.</p>
-    {% endif %}       
-    </div>
+    {% endif %}
 
     <!-- Query Form for getting total -->
     <h1>Roll Up</h1>
     <h2>
         In the 
         <form method="POST" action="{{ url_for('views.home') }}" style="display: inline;">
-            <select name="table_selection" id="table_selection" onchange="updateGroupByOptions()">
+            <select name="table_selection1" id="table_selection1" onchange="updateRollUpOptions()">
                 <option value="Dim_GameAttributes">Game Attributes</option>
                 <option value="Dim_GamePlatform">Game Platform</option>
                 <option value="Dim_Organization">Game Organization</option>
             </select>
             table, get the total 
-            <select name="aggregation_col" id="aggregation_col">
+            <select name="aggregation_col_rollup" id="aggregation_col_rollup">
                 <option value="Estimated_Owners">Estimated Owners</option>
                 <option value="Peak_CCU">Peak CCU</option>
                 <option value="Average_Playtime_Forever">Average Playtime Forever</option>
@@ -100,7 +125,7 @@
                 <option value="Recommendations">Recommendations</option>
             </select>
             by
-            <select name="group_by_col" id="group_by_col">
+            <select name="group_by_col1" id="group_by_col1">
                 <!-- Options will be populated by JavaScript -->
             </select>
             
@@ -120,7 +145,7 @@
             <tbody>
                 {% for row in total_results %}
                     <tr>
-                        <td>{{ row[0] }}</td>  {# Assuming row is a tuple #}
+                        <td>{{ row[0] }}</td>  
                         <td>{{ row[1] }}</td>
                     </tr>
                 {% endfor %}
@@ -130,14 +155,9 @@
         <p>No data available for the selected criteria.</p>
     {% endif %}
     
+    <!-- JavaScript -->
     <script>
-        const groupByOptions = {
-            'Dim_GameAttributes': ['Category', 'Tags', 'Genres'],
-            'Dim_GamePlatform': ['Mac', 'Windows', 'Linux'],
-            'Dim_Organization': ['Developers', 'Publishers']
-        };
-
-        function updateGroupByOptions() {
+        function updateDrillDownOptions() {
             const tableSelection = document.getElementById('table_selection').value;
             const groupByCol = document.getElementById('group_by_col');
             groupByCol.innerHTML = '';
@@ -151,7 +171,24 @@
             });
         }
 
-        updateGroupByOptions();
+        updateDrillDownOptions();
+
+        function updateRollUpOptions() {
+            const tableSelection = document.getElementById('table_selection1').value;
+            const groupByCol = document.getElementById('group_by_col1');
+            groupByCol.innerHTML = '';
+            const options = groupByOptions[tableSelection];
+
+            options.forEach(option => {
+                const newOption = document.createElement('option');
+                newOption.value = option;
+                newOption.textContent = option;
+                groupByCol.appendChild(newOption);
+            });
+        }
+
+        updateRollUpOptions();
     </script>
+
 </body>
 </html>

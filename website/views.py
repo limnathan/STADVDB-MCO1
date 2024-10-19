@@ -1,27 +1,30 @@
 from flask import Blueprint, render_template, request
-from .reports import get_overview, get_top_developers, get_total
+from .reports import get_overview, get_top, get_total
 
 views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET', 'POST'])
 def home():
     overview = get_overview()
-    top_developers = None  
+    top_results = None  
     total_results = None
 
     if request.method == 'POST':
-        org_type = request.form.get('type') 
-        top_n = request.form.get('number')  
-        group_by_column = request.form.get('group_by_col') 
-        aggregation_column = request.form.get('aggregation_col')
+
+        group_by_col = request.form.get('group_by_col') 
+        aggregation_col = request.form.get('aggregation_col_drill')  
         dim_table = request.form.get('table_selection')
 
+        group_by_column1 = request.form.get('group_by_col1') 
+        aggregation_column1 = request.form.get('aggregation_col_rollup')
+        dim_table1 = request.form.get('table_selection1')
+
         # Retrieve top developers or publishers
-        if org_type and top_n:
-            top_developers = get_top_developers(org_type, top_n)
+        if group_by_col and aggregation_col and dim_table:
+            top_results = get_top(group_by_col, aggregation_col, dim_table)
 
         # Retrieve total by aggregation and group by columns
-        if aggregation_column and group_by_column and dim_table:
-            total_results = get_total(group_by_column, aggregation_column, dim_table)
+        if group_by_column1 and aggregation_column1 and dim_table1:
+            total_results = get_total(group_by_column1, aggregation_column1, dim_table1)
 
-    return render_template('base.html', overview=overview, top_developers=top_developers, total_results=total_results)
+    return render_template('base.html', overview=overview, top_results=top_results, total_results=total_results)

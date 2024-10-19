@@ -17,41 +17,31 @@ def get_overview():
     
     return overview_query.fetchone()
 
-def get_top_developers(org_type, top_n):
-    if org_type not in ['developers', 'publishers']:
-        raise ValueError("org_type must be either 'developers' or 'publishers'")
+def get_top(group_by_col, aggregation_col, dim_table):
 
     query = text(f"""
-        SELECT o.{org_type} AS Name, SUM(f.Positive) AS Positive
+        SELECT o.{group_by_col} AS Name, SUM(f.{aggregation_col}) AS Top
         FROM Fact_steamGames f
-        JOIN Dim_Organization o ON f.AppID = o.AppID
-        WHERE o.{org_type} IS NOT NULL
-        GROUP BY o.{org_type}
-        ORDER BY Positive DESC
-        LIMIT :top_n
+        JOIN {dim_table} o ON f.AppID = o.AppID
+        WHERE o.{group_by_col} IS NOT NULL
+        GROUP BY o.{group_by_col}
+        ORDER BY Top DESC
     """)
 
-    result = db.session.execute(query, {'top_n': int(top_n)})
-    
-    df = pd.DataFrame(result.fetchall(), columns=['Name', 'Positive'])
-    
-    if df.empty:
-        print("No data found for the specified criteria.")
-        return None  
+    result = db.session.execute(query)
+    return result.fetchall()
 
-    return df
-
-def get_total(group_by_column, aggregation_column, dim_table):
+def get_total(group_by_column1, aggregation_column1, dim_table1):
     query = text(f"""
         SELECT 
-            dga.{group_by_column},
-            SUM(fg.{aggregation_column}) AS Total
+            dga.{group_by_column1},
+            SUM(fg.{aggregation_column1}) AS Total
         FROM 
             Fact_steamGames fg
         JOIN 
-            {dim_table} dga ON fg.AppID = dga.AppID
+            {dim_table1} dga ON fg.AppID = dga.AppID
         GROUP BY 
-            dga.{group_by_column} WITH ROLLUP
+            dga.{group_by_column1} WITH ROLLUP
     """)
     
     result = db.session.execute(query)
