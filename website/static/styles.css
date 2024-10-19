@@ -71,3 +71,13 @@ button {
 button:hover {
     background-color: #45a049;
 }
+
+.execution-time {
+    padding: 20px 0; 
+    text-align: center; 
+    font-size: 1.2em; 
+    color: #333; 
+    background-color: #f8f9fa;
+    border-radius: 5px; 
+    margin: 20px 0; 
+}
