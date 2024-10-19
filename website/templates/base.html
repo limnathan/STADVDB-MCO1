@@ -71,5 +71,87 @@
         <p>No data available for the selected criteria.</p>
     {% endif %}       
     </div>
+
+    <!-- Query Form for getting total -->
+    <h1>Roll Up</h1>
+    <h2>
+        In the 
+        <form method="POST" action="{{ url_for('views.home') }}" style="display: inline;">
+            <select name="table_selection" id="table_selection" onchange="updateGroupByOptions()">
+                <option value="Dim_GameAttributes">Game Attributes</option>
+                <option value="Dim_GamePlatform">Game Platform</option>
+                <option value="Dim_Organization">Game Organization</option>
+            </select>
+            table, get the total 
+            <select name="aggregation_col" id="aggregation_col">
+                <option value="Estimated_Owners">Estimated Owners</option>
+                <option value="Peak_CCU">Peak CCU</option>
+                <option value="Average_Playtime_Forever">Average Playtime Forever</option>
+                <option value="Average_Playtime_Two_Weeks">Average Playtime Two Weeks</option>
+                <option value="Median_Playtime_Forever">Median Playtime Forever</option>
+                <option value="Median_Playtime_Two_Weeks">Median Playtime Two Weeks</option>
+                <option value="Total_Revenue">Total Revenue</option>
+                <option value="User_Score">User Score</option>
+                <option value="Metacritic_Score">Metacritic Score</option>
+                <option value="Positive_Reviews">Positive Reviews</option>
+                <option value="Negative_Reviews">Negative Reviews</option>
+                <option value="DLC_Count">DLC Count</option>
+                <option value="Achievements">Achievements</option>
+                <option value="Recommendations">Recommendations</option>
+            </select>
+            by
+            <select name="group_by_col" id="group_by_col">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            
+            <button type="submit">Submit</button>
+        </form>
+    </h2>
+
+    {% if total_results is not none and request.method == 'POST' %}
+    <h3>Aggregated Results</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ group_by_col }}</th>
+                    <th>{{ aggregation_col }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in total_results %}
+                    <tr>
+                        <td>{{ row[0] }}</td>  {# Assuming row is a tuple #}
+                        <td>{{ row[1] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif request.method == 'POST' %}
+        <p>No data available for the selected criteria.</p>
+    {% endif %}
+    
+    <script>
+        const groupByOptions = {
+            'Dim_GameAttributes': ['Category', 'Tags', 'Genres'],
+            'Dim_GamePlatform': ['Mac', 'Windows', 'Linux'],
+            'Dim_Organization': ['Developers', 'Publishers']
+        };
+
+        function updateGroupByOptions() {
+            const tableSelection = document.getElementById('table_selection').value;
+            const groupByCol = document.getElementById('group_by_col');
+            groupByCol.innerHTML = '';
+            const options = groupByOptions[tableSelection];
+
+            options.forEach(option => {
+                const newOption = document.createElement('option');
+                newOption.value = option;
+                newOption.textContent = option;
+                groupByCol.appendChild(newOption);
+            });
+        }
+
+        updateGroupByOptions();
+    </script>
 </body>
 </html>

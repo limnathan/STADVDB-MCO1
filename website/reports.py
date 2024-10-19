@@ -41,20 +41,18 @@ def get_top_developers(org_type, top_n):
 
     return df
 
-def create_graph(top_developers_or_publishers):
-    df = pd.DataFrame(top_developers_or_publishers)
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(df['Name'], df['Positive'])
-    plt.xlabel('Name')
-    plt.ylabel('Positive Reviews')
-    plt.title('Top Developers/Publishers with Most Positive Reviews')
-    plt.xticks(rotation=45)
-
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close() 
-
-    graph_data = base64.b64encode(img.getvalue()).decode('utf8')
-    return graph_data
+def get_total(group_by_column, aggregation_column, dim_table):
+    query = text(f"""
+        SELECT 
+            dga.{group_by_column},
+            SUM(fg.{aggregation_column}) AS Total
+        FROM 
+            Fact_steamGames fg
+        JOIN 
+            {dim_table} dga ON fg.AppID = dga.AppID
+        GROUP BY 
+            dga.{group_by_column} WITH ROLLUP
+    """)
+    
+    result = db.session.execute(query)
+    return result.fetchall()
