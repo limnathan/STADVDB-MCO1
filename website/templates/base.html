@@ -15,6 +15,69 @@
             'Dim_Organization': ['Developers', 'Publishers'],
             'Dim_Games' : ['Name', 'Release date']
         };
+
+        const filterOptions = {
+            'Category': [
+                'Single-player',
+                'Multi-player',
+                'PvP',
+                'Online PvP',
+                'Co-op',
+                'Online Co-op',
+                'Shared/Split Screen Co-op',
+                'Shared/Split Screen',
+                'Cross-Platform Multiplayer',
+                'Steam Achievements',
+                'Full controller support',
+                'Steam Trading Cards',
+                'Steam Workshop',
+                'Steam Cloud',
+                'Steam Leaderboards',
+                'Steam Turn Notifications',
+                'Includes level editor',
+                'Remote Play on Phone',
+                'Remote Play on Tablet',
+                'Remote Play on TV',
+                'Remote Play Together'
+            ],
+            'Tags': [
+                'Choose Your Own Adventure',
+                'Open World',
+                'Character Customization',
+                'Exploration',
+                'Souls-like',
+                'Gothic',
+                'Lovecraftian',
+                'Turn-Based Tactics',
+                'Immersive Sim',
+                'Horror',
+                'Dungeon Crawler',
+                'Choices Matter',
+                'Party-Based RPG',
+                'Survival Horror',
+                'Turn-Based Strategy',
+                'First-Person',
+                'Cyberpunk',
+                'Multiple Endings',
+                'Story Rich',
+                'Dark Fantasy'
+            ],
+            'Genres': [
+                'Casual',
+                'Free to Play',
+                'Indie',
+                'Accounting',
+                'Animation & Modeling',
+                'Audio Production',
+                'Design & Illustration',
+                'Education',
+                'Photo Editing',
+                'Software Training',
+                'Utilities',
+                'Video Production',
+                'Web Publishing'
+            ]
+        };
     </script>
 
     <h1>Steam Games OLAP Application</h1>
@@ -39,7 +102,7 @@
         </tbody>
     </table>
 
-    <!-- Query Form for Top Developers/Publishers -->
+    <!-- Query Form for drill down -->
     <h1>Drill Down</h1>
     <h2>
         In the
@@ -50,7 +113,7 @@
                 <option value="Dim_Organization">Game Organization</option>
                 <option value="Dim_Games">Games</option>
             </select>
-            table get the 
+            table, get the 
             <select name="group_by_col" id="group_by_col">
                 <!-- Options will be populated by JavaScript -->
             </select>
@@ -97,7 +160,7 @@
         <p>No data available for the selected criteria.</p>
     {% endif %}
 
-    <!-- Query Form for getting total -->
+    <!-- Query Form for roll up -->
     <h1>Roll Up</h1>
     <h2>
         In the 
@@ -155,6 +218,46 @@
         <p>No data available for the selected criteria.</p>
     {% endif %}
     
+    <!-- Query Form for slicing -->
+    <h1>Slice</h1>
+    <h2>
+        Find games with the
+        <form method="POST" action="{{ url_for('views.home') }}" style="display: inline;">
+            <select name="property" id="property" onchange="updateSliceOptions()">
+                <option value="Category">Category</option>
+                <option value="Tags">Tag</option>
+                <option value="Genres">Genre</option>
+            </select>
+            containing
+            <select name="filter" id="filter">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+
+            <button type="submit">Submit</button>
+        </form>
+    </h2>   
+    
+    {% if total_slice %}
+    <h3>Slice Results:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Game</th>
+                <th>Filter</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for game in total_slice %}
+            <tr>
+                <td>{{ game[0] }}</td>
+                <td>{{ game[1] }}</td>
+            </tr> 
+        {% endfor %}
+    </table>
+
+    {% elif request.method == 'POST' %}
+    <p>No data available for the selected criteria.</p>
+    {% endif %}
     <!-- JavaScript -->
     <script>
         function updateDrillDownOptions() {
@@ -187,7 +290,25 @@
             });
         }
 
+        function updateSliceOptions() {
+            const tableSelection = document.getElementById('property').value;
+            const groupByCol = document.getElementById('filter');
+            groupByCol.innerHTML = '';
+            const options = filterOptions[tableSelection];
+
+            options.forEach(option => {
+                const newOption = document.createElement('option');
+                newOption.value = option;
+                newOption.textContent = option;
+                groupByCol.appendChild(newOption);
+            });
+        }
+
+        updateDrillDownOptions();
+
         updateRollUpOptions();
+
+        updateSliceOptions();   
     </script>
 
 </body>
