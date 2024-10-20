@@ -12,6 +12,11 @@ def home():
     total_slice = None
     game_stats = None  
     execution_time = None 
+    aggregation_col = None
+
+    chart_labels = []  # For chart labels
+    chart_data = []  # For chart values  
+
 
     if request.method == 'POST':
         start_time = time.time()
@@ -33,6 +38,10 @@ def home():
             if group_by_col and aggregation_col and dim_table:
                 top_results = get_top(group_by_col, aggregation_col, dim_table)
 
+                if top_results:
+                    chart_labels = [row[0] for row in top_results]
+                    chart_data = [row[1] for row in top_results]
+
             if group_by_column1 and aggregation_column1 and dim_table1:
                 total_results = get_total(group_by_column1, aggregation_column1, dim_table1)
 
@@ -52,5 +61,8 @@ def home():
         total_results=total_results, 
         total_slice=total_slice,
         game_stats=game_stats,
-        execution_time=execution_time
+        execution_time=execution_time,
+        aggregation_col=aggregation_col,
+        chart_labels=chart_labels,
+        chart_data=chart_data
     )

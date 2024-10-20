@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Steam Games OLAP Application</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <!-- Include Chart.js -->
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     </head>
 <body>
@@ -145,7 +146,7 @@
         </form>
     </h2>
     
-    {% if top_results is not none and request.method == 'POST' %}
+    <!-- {% if top_results is not none and request.method == 'POST' %}
         <h3>Aggregated Results</h3>
         <table>
             <thead>
@@ -165,6 +166,37 @@
         </table>
     {% elif request.method == 'POST' %}
         <p>No data available for the selected criteria.</p>
+    {% endif %} -->
+
+    <!-- Chart.js visualization -->
+    <canvas id="myChart" width="400" height="200"></canvas>
+
+    {% if chart_labels and chart_data %}
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ chart_labels|tojson }}'),  
+                datasets: [{
+                    label: '{{ aggregation_col }}',
+                    data: JSON.parse('{{ chart_data|tojson }}'),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+    {% else %}
+        <p>No data available to display the chart.</p>
     {% endif %}
 
     <!-- Query Form for roll up -->
