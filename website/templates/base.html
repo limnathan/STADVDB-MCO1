@@ -146,23 +146,25 @@
     </h2>
     
     {% if top_results is not none and request.method == 'POST' %}
-        <h3>Aggregated Results</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Positive Reviews</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in top_results %}
+        <h3>Drill Down Results:</h3>
+        <div class="table-container"></div>
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ row[0] }}</td>  
-                        <td>{{ row[1] }}</td>  
+                        <th>Name</th>
+                        <th>Positive Reviews</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for row in top_results %}
+                        <tr>
+                            <td>{{ row[0] }}</td>  
+                            <td>{{ row[1] }}</td>  
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% elif request.method == 'POST' %}
         <p>No data available for the selected criteria.</p>
     {% endif %}
@@ -204,12 +206,13 @@
     </h2>
 
     {% if total_results is not none and request.method == 'POST' %}
-    <h3>Aggregated Results</h3>
+    <h3>Roll Up Results:</h3>
+    <div class="table-container"></div>
         <table>
             <thead>
                 <tr>
-                    <th>{{ group_by_col }}</th>
-                    <th>{{ aggregation_col }}</th>
+                    <th>{{ group_by_col1 if group_by_col1 else 'Group By' }}</th>
+                    <th>{{ aggregation_col_rollup if aggregation_col_rollup else 'Aggregation' }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -221,6 +224,7 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
     {% elif request.method == 'POST' %}
         <p>No data available for the selected criteria.</p>
     {% endif %}
@@ -246,21 +250,23 @@
     
     {% if total_slice %}
     <h3>Slice Results:</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Game</th>
-                <th>Filter</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for game in total_slice %}
-            <tr>
-                <td>{{ game[0] }}</td>
-                <td>{{ game[1] }}</td>
-            </tr> 
-        {% endfor %}
-    </table>
+    <div class="table-container"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Filter</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for game in total_slice %}
+                <tr>
+                    <td>{{ game[0] }}</td>
+                    <td>{{ game[1] }}</td>
+                </tr> 
+            {% endfor %}
+        </table>
+    </div>
 
     {% elif request.method == 'POST' %}
     <p>No data available for the selected criteria.</p>
@@ -277,37 +283,39 @@
     </h2>
 
     {% if game_stats is not none and request.method == 'POST' %}
-        <h3>Statistics</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Game</th>
-                    <th>Average User Score</th>
-                    <th>Total Estimated Owners</th>
-                    <th>Total Positive Reviews</th>
-                    <th>Total Negative Reviews</th>
-                    <th>Total Recommendations</th>
-                    <th>Windows Owners</th>
-                    <th>Mac Owners</th>
-                    <th>Linux Owners</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in game_stats %}
+        <h3>Statistics:</h3>
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ row[0] }}</td>
-                        <td>{{ row[1] }}</td>
-                        <td>{{ row[2] }}</td>
-                        <td>{{ row[3] }}</td>
-                        <td>{{ row[4] }}</td>
-                        <td>{{ row[5] }}</td>
-                        <td>{{ row[6] }}</td>
-                        <td>{{ row[7] }}</td>
-                        <td>{{ row[8] }}</td>
+                        <th>Game</th>
+                        <th>Average User Score</th>
+                        <th>Total Estimated Owners</th>
+                        <th>Total Positive Reviews</th>
+                        <th>Total Negative Reviews</th>
+                        <th>Total Recommendations</th>
+                        <th>Windows Owners</th>
+                        <th>Mac Owners</th>
+                        <th>Linux Owners</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for row in game_stats %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                            <td>{{ row[4] }}</td>
+                            <td>{{ row[5] }}</td>
+                            <td>{{ row[6] }}</td>
+                            <td>{{ row[7] }}</td>
+                            <td>{{ row[8] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% elif request.method == 'POST' %}
         <p>No pivot data available for the selected criteria.</p>
     {% endif %}
