@@ -18,7 +18,6 @@ def get_overview():
     return overview_query.fetchone()
 
 def get_top(group_by_col, aggregation_col, dim_table):
-
     query = text(f"""
         SELECT o.{group_by_col} AS Name, SUM(f.{aggregation_col}) AS Top
         FROM Fact_steamGames f
@@ -33,15 +32,10 @@ def get_top(group_by_col, aggregation_col, dim_table):
 
 def get_total(group_by_column1, aggregation_column1, dim_table1):
     query = text(f"""
-        SELECT 
-            dga.{group_by_column1},
-            SUM(fg.{aggregation_column1}) AS Total
-        FROM 
-            Fact_steamGames fg
-        JOIN 
-            {dim_table1} dga ON fg.AppID = dga.AppID
-        GROUP BY 
-            dga.{group_by_column1} WITH ROLLUP
+        SELECT dga.{group_by_column1},SUM(fg.{aggregation_column1}) AS Total
+        FROM Fact_steamGames fg
+        JOIN {dim_table1} dga ON fg.AppID = dga.AppID
+        GROUP BY dga.{group_by_column1} WITH ROLLUP
     """)
     
     result = db.session.execute(query)
@@ -49,15 +43,10 @@ def get_total(group_by_column1, aggregation_column1, dim_table1):
 
 def get_slice(property, filter):
     query = text(f"""
-        SELECT DISTINCT
-            g.Name,
-            dim.{property}
-        FROM 
-            Dim_Games g
-        JOIN 
-            Dim_GameAttributes dim ON g.AppID = dim.AppID
-        WHERE 
-            dim.{property} LIKE '%{filter}%'
+        SELECT DISTINCT g.Name, dim.{property}
+        FROM Dim_Games g
+        JOIN Dim_GameAttributes dim ON g.AppID = dim.AppID
+        WHERE dim.{property} LIKE '%{filter}%'
     """)
         
     result = db.session.execute(query)
